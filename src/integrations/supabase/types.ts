@@ -75,8 +75,10 @@ export type Database = {
         Row: {
           created_at: string
           description: string | null
+          duration: number
           host_id: string
           id: string
+          question_count: number
           quiz_code: string
           status: string
           title: string
@@ -84,8 +86,10 @@ export type Database = {
         Insert: {
           created_at?: string
           description?: string | null
+          duration?: number
           host_id: string
           id?: string
+          question_count?: number
           quiz_code: string
           status?: string
           title: string
@@ -93,8 +97,10 @@ export type Database = {
         Update: {
           created_at?: string
           description?: string | null
+          duration?: number
           host_id?: string
           id?: string
+          question_count?: number
           quiz_code?: string
           status?: string
           title?: string
