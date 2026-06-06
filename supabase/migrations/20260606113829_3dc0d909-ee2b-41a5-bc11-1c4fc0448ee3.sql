@@ -1,0 +1,3 @@
+ALTER TABLE public.quizzes
+  ADD COLUMN IF NOT EXISTS duration integer NOT NULL DEFAULT 10,
+  ADD COLUMN IF NOT EXISTS question_count integer NOT NULL DEFAULT 0;
