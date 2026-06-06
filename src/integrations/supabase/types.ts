@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      participants: {
+        Row: {
+          branch: string
+          college: string
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          updated_at: string
+          user_id: string
+          year: string
+        }
+        Insert: {
+          branch: string
+          college: string
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          updated_at?: string
+          user_id: string
+          year: string
+        }
+        Update: {
+          branch?: string
+          college?: string
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+          year?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string

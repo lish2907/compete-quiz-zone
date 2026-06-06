@@ -9,15 +9,27 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WaitingRoomRouteImport } from './routes/waiting-room'
 import { Route as RegisterRouteImport } from './routes/register'
+import { Route as ParticipantRegisterRouteImport } from './routes/participant-register'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as JoinRouteImport } from './routes/join'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 
+const WaitingRoomRoute = WaitingRoomRouteImport.update({
+  id: '/waiting-room',
+  path: '/waiting-room',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
   path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ParticipantRegisterRoute = ParticipantRegisterRouteImport.update({
+  id: '/participant-register',
+  path: '/participant-register',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -46,14 +58,18 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/join': typeof JoinRoute
   '/login': typeof LoginRoute
+  '/participant-register': typeof ParticipantRegisterRoute
   '/register': typeof RegisterRoute
+  '/waiting-room': typeof WaitingRoomRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/join': typeof JoinRoute
   '/login': typeof LoginRoute
+  '/participant-register': typeof ParticipantRegisterRoute
   '/register': typeof RegisterRoute
+  '/waiting-room': typeof WaitingRoomRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -61,14 +77,38 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/join': typeof JoinRoute
   '/login': typeof LoginRoute
+  '/participant-register': typeof ParticipantRegisterRoute
   '/register': typeof RegisterRoute
+  '/waiting-room': typeof WaitingRoomRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin' | '/join' | '/login' | '/register'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/join'
+    | '/login'
+    | '/participant-register'
+    | '/register'
+    | '/waiting-room'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin' | '/join' | '/login' | '/register'
-  id: '__root__' | '/' | '/admin' | '/join' | '/login' | '/register'
+  to:
+    | '/'
+    | '/admin'
+    | '/join'
+    | '/login'
+    | '/participant-register'
+    | '/register'
+    | '/waiting-room'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/join'
+    | '/login'
+    | '/participant-register'
+    | '/register'
+    | '/waiting-room'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -76,16 +116,32 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   JoinRoute: typeof JoinRoute
   LoginRoute: typeof LoginRoute
+  ParticipantRegisterRoute: typeof ParticipantRegisterRoute
   RegisterRoute: typeof RegisterRoute
+  WaitingRoomRoute: typeof WaitingRoomRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/waiting-room': {
+      id: '/waiting-room'
+      path: '/waiting-room'
+      fullPath: '/waiting-room'
+      preLoaderRoute: typeof WaitingRoomRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/register': {
       id: '/register'
       path: '/register'
       fullPath: '/register'
       preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/participant-register': {
+      id: '/participant-register'
+      path: '/participant-register'
+      fullPath: '/participant-register'
+      preLoaderRoute: typeof ParticipantRegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -124,7 +180,9 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   JoinRoute: JoinRoute,
   LoginRoute: LoginRoute,
+  ParticipantRegisterRoute: ParticipantRegisterRoute,
   RegisterRoute: RegisterRoute,
+  WaitingRoomRoute: WaitingRoomRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

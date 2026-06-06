@@ -39,7 +39,7 @@ function RegisterPage() {
       setLoading(false);
       return;
     }
-    navigate({ to: role === "admin" ? "/admin" : "/join" });
+    navigate({ to: role === "admin" ? "/admin" : "/participant-register" });
   }
   return (
     <AuthShell
