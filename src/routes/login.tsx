@@ -45,7 +45,12 @@ function LoginPage() {
       }
       navigate({ to: "/admin" });
     } else {
-      navigate({ to: "/join" });
+      const { data: participant } = await supabase
+        .from("participants")
+        .select("id")
+        .eq("user_id", data.user.id)
+        .maybeSingle();
+      navigate({ to: participant ? "/waiting-room" : "/participant-register" });
     }
   }
 
