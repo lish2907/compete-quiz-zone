@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as RegisterRouteImport } from './routes/register'
+import { Route as ParticipantRegisterRouteImport } from './routes/participant-register'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as JoinRouteImport } from './routes/join'
 import { Route as AdminRouteImport } from './routes/admin'
@@ -18,6 +19,11 @@ import { Route as IndexRouteImport } from './routes/index'
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
   path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ParticipantRegisterRoute = ParticipantRegisterRouteImport.update({
+  id: '/participant-register',
+  path: '/participant-register',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -46,6 +52,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/join': typeof JoinRoute
   '/login': typeof LoginRoute
+  '/participant-register': typeof ParticipantRegisterRoute
   '/register': typeof RegisterRoute
 }
 export interface FileRoutesByTo {
@@ -53,6 +60,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/join': typeof JoinRoute
   '/login': typeof LoginRoute
+  '/participant-register': typeof ParticipantRegisterRoute
   '/register': typeof RegisterRoute
 }
 export interface FileRoutesById {
@@ -61,14 +69,34 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/join': typeof JoinRoute
   '/login': typeof LoginRoute
+  '/participant-register': typeof ParticipantRegisterRoute
   '/register': typeof RegisterRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin' | '/join' | '/login' | '/register'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/join'
+    | '/login'
+    | '/participant-register'
+    | '/register'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin' | '/join' | '/login' | '/register'
-  id: '__root__' | '/' | '/admin' | '/join' | '/login' | '/register'
+  to:
+    | '/'
+    | '/admin'
+    | '/join'
+    | '/login'
+    | '/participant-register'
+    | '/register'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/join'
+    | '/login'
+    | '/participant-register'
+    | '/register'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -76,6 +104,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   JoinRoute: typeof JoinRoute
   LoginRoute: typeof LoginRoute
+  ParticipantRegisterRoute: typeof ParticipantRegisterRoute
   RegisterRoute: typeof RegisterRoute
 }
 
@@ -86,6 +115,13 @@ declare module '@tanstack/react-router' {
       path: '/register'
       fullPath: '/register'
       preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/participant-register': {
+      id: '/participant-register'
+      path: '/participant-register'
+      fullPath: '/participant-register'
+      preLoaderRoute: typeof ParticipantRegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -124,8 +160,19 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   JoinRoute: JoinRoute,
   LoginRoute: LoginRoute,
+  ParticipantRegisterRoute: ParticipantRegisterRoute,
   RegisterRoute: RegisterRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
