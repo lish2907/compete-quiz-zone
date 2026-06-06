@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { AuthShell, AuthInput, AuthButton } from "@/components/qv/AuthShell";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
@@ -15,6 +16,38 @@ export const Route = createFileRoute("/login")({
 function LoginPage() {
   const navigate = useNavigate();
   const [tab, setTab] = useState<"admin" | "participant">("admin");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error || !data.user) {
+      setError(error?.message ?? "Login failed");
+      setLoading(false);
+      return;
+    }
+    if (tab === "admin") {
+      const { data: roles } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", data.user.id);
+      const isAdmin = roles?.some((r) => r.role === "admin");
+      if (!isAdmin) {
+        await supabase.auth.signOut();
+        setError("This account is not an admin.");
+        setLoading(false);
+        return;
+      }
+      navigate({ to: "/admin" });
+    } else {
+      navigate({ to: "/join" });
+    }
+  }
 
   return (
     <AuthShell
@@ -46,16 +79,28 @@ function LoginPage() {
         ))}
       </div>
 
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          navigate({ to: tab === "admin" ? "/admin" : "/join" });
-        }}
-      >
-        <AuthInput label="Email" type="email" placeholder="you@quizverse.app" required />
-        <AuthInput label="Password" type="password" placeholder="••••••••" required />
-        <AuthButton type="submit">
-          {tab === "admin" ? "Enter Admin Console" : "Continue to Lobby"}
+      <form onSubmit={handleSubmit}>
+        <AuthInput
+          label="Email"
+          type="email"
+          placeholder="you@quizverse.app"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <AuthInput
+          label="Password"
+          type="password"
+          placeholder="••••••••"
+          required
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        {error && (
+          <p className="text-sm text-destructive mb-3" role="alert">{error}</p>
+        )}
+        <AuthButton type="submit" disabled={loading}>
+          {loading ? "Signing in…" : tab === "admin" ? "Enter Admin Console" : "Continue to Lobby"}
         </AuthButton>
       </form>
     </AuthShell>
