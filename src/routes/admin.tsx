@@ -314,7 +314,7 @@ function AdminDashboard() {
               <p className="text-xs text-foreground/60">Add, edit, and bulk-import questions.</p>
             </div>
           </Link>
-          <Link to="/admin/analytics" className="glass rounded-2xl p-5 flex items-center gap-4 hover:border-primary/40 transition-colors border border-transparent">
+          <Link to="/analytics" className="glass rounded-2xl p-5 flex items-center gap-4 hover:border-primary/40 transition-colors border border-transparent">
             <div className="size-12 rounded-xl bg-accent/15 border border-accent/30 flex items-center justify-center text-accent"><BarChart3 /></div>
             <div>
               <p className="font-display text-lg">Analytics</p>
@@ -419,7 +419,7 @@ function AdminDashboard() {
                       <TableCell>
                         <div className="flex justify-end gap-1">
                           <Button asChild size="icon" variant="ghost" title="Manage / Live control">
-                            <Link to="/admin/quiz/$quizId" params={{ quizId: q.id }}><Settings /></Link>
+                            <Link to="/manage/$quizId" params={{ quizId: q.id }}><Settings /></Link>
                           </Button>
                           <Button size="icon" variant="ghost" onClick={() => setViewing(q)} title="View">
                             <Eye />

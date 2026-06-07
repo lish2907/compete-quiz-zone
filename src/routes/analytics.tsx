@@ -90,7 +90,7 @@ function AnalyticsPage() {
           ) : (
             <div className="space-y-2">
               {perQuiz.map((p) => (
-                <Link key={p.quiz.id} to="/admin/quiz/$quizId" params={{ quizId: p.quiz.id }}
+                <Link key={p.quiz.id} to="/manage/$quizId" params={{ quizId: p.quiz.id }}
                   className="flex items-center justify-between p-3 rounded-lg bg-foreground/5 border border-border hover:border-primary/40 transition-colors">
                   <div className="min-w-0">
                     <p className="font-medium truncate">{p.quiz.title}</p>

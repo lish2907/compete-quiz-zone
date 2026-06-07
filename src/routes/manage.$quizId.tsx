@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { supabase } from "@/integrations/supabase/client";
 import { STATUS_TONE, type QuizStatus } from "@/lib/quiz-utils";
 
-export const Route = createFileRoute("/admin/quiz/$quizId")({
+export const Route = createFileRoute("/manage/$quizId")({
   head: () => ({ meta: [{ title: "Quiz Control — QuizVerse" }] }),
   component: QuizDetailPage,
 });
@@ -36,7 +36,7 @@ type Participant = {
 };
 
 function QuizDetailPage() {
-  const { quizId } = useParams({ from: "/admin/quiz/$quizId" });
+  const { quizId } = useParams({ from: "/manage/$quizId" });
   const navigate = useNavigate();
   const [authChecked, setAuthChecked] = useState(false);
   const [quiz, setQuiz] = useState<Quiz | null>(null);
