@@ -17,6 +17,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as JoinRouteImport } from './routes/join'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as QuizCodeRouteImport } from './routes/quiz.$code'
 import { Route as AdminQuizQuizIdRouteImport } from './routes/admin.quiz.$quizId'
 
 const WaitingRoomRoute = WaitingRoomRouteImport.update({
@@ -59,6 +60,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const QuizCodeRoute = QuizCodeRouteImport.update({
+  id: '/quiz/$code',
+  path: '/quiz/$code',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminQuizQuizIdRoute = AdminQuizQuizIdRouteImport.update({
   id: '/quiz/$quizId',
   path: '/quiz/$quizId',
@@ -74,6 +80,7 @@ export interface FileRoutesByFullPath {
   '/questions': typeof QuestionsRoute
   '/register': typeof RegisterRoute
   '/waiting-room': typeof WaitingRoomRoute
+  '/quiz/$code': typeof QuizCodeRoute
   '/admin/quiz/$quizId': typeof AdminQuizQuizIdRoute
 }
 export interface FileRoutesByTo {
@@ -85,6 +92,7 @@ export interface FileRoutesByTo {
   '/questions': typeof QuestionsRoute
   '/register': typeof RegisterRoute
   '/waiting-room': typeof WaitingRoomRoute
+  '/quiz/$code': typeof QuizCodeRoute
   '/admin/quiz/$quizId': typeof AdminQuizQuizIdRoute
 }
 export interface FileRoutesById {
@@ -97,6 +105,7 @@ export interface FileRoutesById {
   '/questions': typeof QuestionsRoute
   '/register': typeof RegisterRoute
   '/waiting-room': typeof WaitingRoomRoute
+  '/quiz/$code': typeof QuizCodeRoute
   '/admin/quiz/$quizId': typeof AdminQuizQuizIdRoute
 }
 export interface FileRouteTypes {
@@ -110,6 +119,7 @@ export interface FileRouteTypes {
     | '/questions'
     | '/register'
     | '/waiting-room'
+    | '/quiz/$code'
     | '/admin/quiz/$quizId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -121,6 +131,7 @@ export interface FileRouteTypes {
     | '/questions'
     | '/register'
     | '/waiting-room'
+    | '/quiz/$code'
     | '/admin/quiz/$quizId'
   id:
     | '__root__'
@@ -132,6 +143,7 @@ export interface FileRouteTypes {
     | '/questions'
     | '/register'
     | '/waiting-room'
+    | '/quiz/$code'
     | '/admin/quiz/$quizId'
   fileRoutesById: FileRoutesById
 }
@@ -144,6 +156,7 @@ export interface RootRouteChildren {
   QuestionsRoute: typeof QuestionsRoute
   RegisterRoute: typeof RegisterRoute
   WaitingRoomRoute: typeof WaitingRoomRoute
+  QuizCodeRoute: typeof QuizCodeRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -204,6 +217,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/quiz/$code': {
+      id: '/quiz/$code'
+      path: '/quiz/$code'
+      fullPath: '/quiz/$code'
+      preLoaderRoute: typeof QuizCodeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/quiz/$quizId': {
       id: '/admin/quiz/$quizId'
       path: '/quiz/$quizId'
@@ -233,6 +253,7 @@ const rootRouteChildren: RootRouteChildren = {
   QuestionsRoute: QuestionsRoute,
   RegisterRoute: RegisterRoute,
   WaitingRoomRoute: WaitingRoomRoute,
+  QuizCodeRoute: QuizCodeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
