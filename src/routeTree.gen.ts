@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WaitingRoomRouteImport } from './routes/waiting-room'
 import { Route as RegisterRouteImport } from './routes/register'
+import { Route as QuestionsRouteImport } from './routes/questions'
 import { Route as ParticipantRegisterRouteImport } from './routes/participant-register'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as JoinRouteImport } from './routes/join'
@@ -25,6 +26,11 @@ const WaitingRoomRoute = WaitingRoomRouteImport.update({
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
   path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const QuestionsRoute = QuestionsRouteImport.update({
+  id: '/questions',
+  path: '/questions',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ParticipantRegisterRoute = ParticipantRegisterRouteImport.update({
@@ -59,6 +65,7 @@ export interface FileRoutesByFullPath {
   '/join': typeof JoinRoute
   '/login': typeof LoginRoute
   '/participant-register': typeof ParticipantRegisterRoute
+  '/questions': typeof QuestionsRoute
   '/register': typeof RegisterRoute
   '/waiting-room': typeof WaitingRoomRoute
 }
@@ -68,6 +75,7 @@ export interface FileRoutesByTo {
   '/join': typeof JoinRoute
   '/login': typeof LoginRoute
   '/participant-register': typeof ParticipantRegisterRoute
+  '/questions': typeof QuestionsRoute
   '/register': typeof RegisterRoute
   '/waiting-room': typeof WaitingRoomRoute
 }
@@ -78,6 +86,7 @@ export interface FileRoutesById {
   '/join': typeof JoinRoute
   '/login': typeof LoginRoute
   '/participant-register': typeof ParticipantRegisterRoute
+  '/questions': typeof QuestionsRoute
   '/register': typeof RegisterRoute
   '/waiting-room': typeof WaitingRoomRoute
 }
@@ -89,6 +98,7 @@ export interface FileRouteTypes {
     | '/join'
     | '/login'
     | '/participant-register'
+    | '/questions'
     | '/register'
     | '/waiting-room'
   fileRoutesByTo: FileRoutesByTo
@@ -98,6 +108,7 @@ export interface FileRouteTypes {
     | '/join'
     | '/login'
     | '/participant-register'
+    | '/questions'
     | '/register'
     | '/waiting-room'
   id:
@@ -107,6 +118,7 @@ export interface FileRouteTypes {
     | '/join'
     | '/login'
     | '/participant-register'
+    | '/questions'
     | '/register'
     | '/waiting-room'
   fileRoutesById: FileRoutesById
@@ -117,6 +129,7 @@ export interface RootRouteChildren {
   JoinRoute: typeof JoinRoute
   LoginRoute: typeof LoginRoute
   ParticipantRegisterRoute: typeof ParticipantRegisterRoute
+  QuestionsRoute: typeof QuestionsRoute
   RegisterRoute: typeof RegisterRoute
   WaitingRoomRoute: typeof WaitingRoomRoute
 }
@@ -135,6 +148,13 @@ declare module '@tanstack/react-router' {
       path: '/register'
       fullPath: '/register'
       preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/questions': {
+      id: '/questions'
+      path: '/questions'
+      fullPath: '/questions'
+      preLoaderRoute: typeof QuestionsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/participant-register': {
@@ -181,9 +201,20 @@ const rootRouteChildren: RootRouteChildren = {
   JoinRoute: JoinRoute,
   LoginRoute: LoginRoute,
   ParticipantRegisterRoute: ParticipantRegisterRoute,
+  QuestionsRoute: QuestionsRoute,
   RegisterRoute: RegisterRoute,
   WaitingRoomRoute: WaitingRoomRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
