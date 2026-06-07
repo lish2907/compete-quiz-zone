@@ -211,27 +211,32 @@ function LiveQuiz() {
     if (!quiz || !currentQ || picking || answeredIds.has(currentQ.id)) return;
     setPicking(opt);
 
-    const { data, error } = await supabase.rpc("submit_quiz_answer", {
-      _quiz_id: quiz.id,
-      _question_id: currentQ.question_id,
-      _selected: opt,
-    });
+    try {
+      const { data, error } = await supabase.rpc("submit_quiz_answer", {
+        _quiz_id: quiz.id,
+        _question_id: currentQ.question_id,
+        _selected: opt,
+      });
 
-    if (error) {
-      // Duplicate submission — treat as already answered
-      if (error.code === "23505" || error.message.toLowerCase().includes("duplicate")) {
-        setAnsweredIds((s) => new Set(s).add(currentQ.id));
-      } else {
-        toast.error(error.message);
+      if (error) {
+        // Duplicate submission — treat as already answered
+        if (error.code === "23505" || error.message.toLowerCase().includes("duplicate")) {
+          setAnsweredIds((s) => new Set(s).add(currentQ.id));
+        } else {
+          toast.error(error.message);
+          setPicking(null);
+        }
+        return;
       }
-      setPicking(null);
-      return;
-    }
 
-    const r = data as { is_correct: boolean; points: number };
-    setLastResult({ correct: r.is_correct, points: r.points });
-    setAnsweredIds((s) => new Set(s).add(currentQ.id));
-    refreshLeaderboard();
+      const r = data as { is_correct: boolean; points: number };
+      setLastResult({ correct: r.is_correct, points: r.points });
+      setAnsweredIds((s) => new Set(s).add(currentQ.id));
+      refreshLeaderboard();
+    } catch (err) {
+      toast.error("Failed to submit answer. Please try again.");
+      setPicking(null);
+    }
   };
 
   if (!quiz) {

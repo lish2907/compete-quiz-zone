@@ -1,9 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Download } from "lucide-react";
 import { Navbar } from "@/components/qv/Navbar";
 import { Footer } from "@/components/qv/Footer";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/analytics")({
@@ -12,12 +13,13 @@ export const Route = createFileRoute("/analytics")({
 });
 
 type QRow = { id: string; title: string; quiz_code: string; status: string };
+type PerQuiz = { quiz: QRow; players: number; avg: number; topScore: number };
 
 function AnalyticsPage() {
   const navigate = useNavigate();
   const [authChecked, setAuthChecked] = useState(false);
   const [stats, setStats] = useState({ totalQuizzes: 0, active: 0, questions: 0, participants: 0, avgScore: 0 });
-  const [perQuiz, setPerQuiz] = useState<{ quiz: QRow; players: number; avg: number }[]>([]);
+  const [perQuiz, setPerQuiz] = useState<PerQuiz[]>([]);
 
   useEffect(() => {
     (async () => {
@@ -53,7 +55,9 @@ function AnalyticsPage() {
       });
       const per = quizzes.map((q) => {
         const arr = grouped.get(q.id) ?? [];
-        return { quiz: q, players: arr.length, avg: arr.length ? Math.round(arr.reduce((a, b) => a + b, 0) / arr.length) : 0 };
+        const arrAvg = arr.length ? Math.round(arr.reduce((a, b) => a + b, 0) / arr.length) : 0;
+        const top = arr.length ? Math.max(...arr) : 0;
+        return { quiz: q, players: arr.length, avg: arrAvg, topScore: top };
       }).sort((a, b) => b.players - a.players);
       setPerQuiz(per);
       setStats({
@@ -62,6 +66,27 @@ function AnalyticsPage() {
       });
     })();
   }, [authChecked]);
+
+  const exportCSV = () => {
+    if (perQuiz.length === 0) return toast.error("No data to export");
+    const headers = ["Quiz Title", "Quiz Code", "Status", "Players", "Avg Score", "Top Score"];
+    const rows = perQuiz.map((p) => [
+      `"${p.quiz.title.replace(/"/g, '""')}"`,
+      p.quiz.quiz_code,
+      p.quiz.status,
+      p.players,
+      p.avg,
+      p.topScore,
+    ]);
+    const csv = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `quizverse-analytics-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   if (!authChecked) return <div className="min-h-screen mesh-gradient flex items-center justify-center"><p className="font-mono text-foreground/60 text-sm">Loading…</p></div>;
 
@@ -72,8 +97,15 @@ function AnalyticsPage() {
         <Link to="/admin" className="inline-flex items-center gap-2 text-sm text-foreground/60 hover:text-primary mb-6">
           <ArrowLeft className="size-4" /> Back to Admin
         </Link>
-        <p className="font-mono text-xs uppercase tracking-widest text-primary mb-2">Analytics</p>
-        <h1 className="font-display text-4xl md:text-5xl tracking-tight mb-8">Platform Overview</h1>
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+          <div>
+            <p className="font-mono text-xs uppercase tracking-widest text-primary mb-2">Analytics</p>
+            <h1 className="font-display text-4xl md:text-5xl tracking-tight">Platform Overview</h1>
+          </div>
+          <Button variant="outline" onClick={exportCSV} disabled={perQuiz.length === 0}>
+            <Download className="size-4" /> Export CSV
+          </Button>
+        </div>
 
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-10">
           <Stat label="Total Quizzes" value={stats.totalQuizzes} />
@@ -96,9 +128,9 @@ function AnalyticsPage() {
                     <p className="font-medium truncate">{p.quiz.title}</p>
                     <p className="text-xs text-foreground/50 font-mono">{p.quiz.quiz_code} · {p.quiz.status}</p>
                   </div>
-                  <div className="text-right">
-                    <p className="font-display text-xl text-primary">{p.players}</p>
-                    <p className="text-[10px] font-mono text-foreground/50">avg {p.avg}</p>
+                  <div className="text-right shrink-0 ml-4 space-y-0.5">
+                    <p className="font-display text-xl text-primary">{p.players} <span className="text-xs font-mono text-foreground/50">players</span></p>
+                    <p className="text-[10px] font-mono text-foreground/50">avg {p.avg} · top {p.topScore}</p>
                   </div>
                 </Link>
               ))}

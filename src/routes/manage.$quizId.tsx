@@ -222,11 +222,12 @@ function QuizDetailPage() {
   const pauseQuiz = () => updateStatus({ status: "paused" });
   const resumeQuiz = () => updateStatus({ status: "live" });
   const endQuiz = () => updateStatus({ status: "ended" });
-  const nextQuestion = () =>
-    quiz &&
-    updateStatus({
-      current_question_index: Math.min(linked.length - 1, quiz.current_question_index + 1),
-    });
+  const nextQuestion = async () => {
+    if (!quiz) return;
+    const { error } = await supabase.rpc("next_quiz_question", { _quiz_id: quiz.id });
+    if (error) toast.error(error.message);
+    else loadAll();
+  };
   const resetIndex = () => updateStatus({ current_question_index: 0 } as unknown as Partial<Quiz>);
   const openLobby = () =>
     updateStatus({

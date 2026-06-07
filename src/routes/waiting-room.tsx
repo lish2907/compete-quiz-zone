@@ -75,6 +75,8 @@ function WaitingRoomPage() {
           if (newStatus) setQuizStatus(newStatus);
           if (newStatus === "live" || newStatus === "paused") {
             navigate({ to: "/quiz/$code", params: { code } });
+          } else if (newStatus === "ended") {
+            navigate({ to: "/results/$quizId", params: { quizId } });
           }
         },
       )
