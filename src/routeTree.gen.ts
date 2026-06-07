@@ -19,6 +19,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ResultsQuizIdRouteImport } from './routes/results.$quizId'
 import { Route as QuizCodeRouteImport } from './routes/quiz.$code'
+import { Route as AdminAnalyticsRouteImport } from './routes/admin.analytics'
 import { Route as AdminQuizQuizIdRouteImport } from './routes/admin.quiz.$quizId'
 
 const WaitingRoomRoute = WaitingRoomRouteImport.update({
@@ -71,6 +72,11 @@ const QuizCodeRoute = QuizCodeRouteImport.update({
   path: '/quiz/$code',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminAnalyticsRoute = AdminAnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminQuizQuizIdRoute = AdminQuizQuizIdRouteImport.update({
   id: '/quiz/$quizId',
   path: '/quiz/$quizId',
@@ -86,6 +92,7 @@ export interface FileRoutesByFullPath {
   '/questions': typeof QuestionsRoute
   '/register': typeof RegisterRoute
   '/waiting-room': typeof WaitingRoomRoute
+  '/admin/analytics': typeof AdminAnalyticsRoute
   '/quiz/$code': typeof QuizCodeRoute
   '/results/$quizId': typeof ResultsQuizIdRoute
   '/admin/quiz/$quizId': typeof AdminQuizQuizIdRoute
@@ -99,6 +106,7 @@ export interface FileRoutesByTo {
   '/questions': typeof QuestionsRoute
   '/register': typeof RegisterRoute
   '/waiting-room': typeof WaitingRoomRoute
+  '/admin/analytics': typeof AdminAnalyticsRoute
   '/quiz/$code': typeof QuizCodeRoute
   '/results/$quizId': typeof ResultsQuizIdRoute
   '/admin/quiz/$quizId': typeof AdminQuizQuizIdRoute
@@ -113,6 +121,7 @@ export interface FileRoutesById {
   '/questions': typeof QuestionsRoute
   '/register': typeof RegisterRoute
   '/waiting-room': typeof WaitingRoomRoute
+  '/admin/analytics': typeof AdminAnalyticsRoute
   '/quiz/$code': typeof QuizCodeRoute
   '/results/$quizId': typeof ResultsQuizIdRoute
   '/admin/quiz/$quizId': typeof AdminQuizQuizIdRoute
@@ -128,6 +137,7 @@ export interface FileRouteTypes {
     | '/questions'
     | '/register'
     | '/waiting-room'
+    | '/admin/analytics'
     | '/quiz/$code'
     | '/results/$quizId'
     | '/admin/quiz/$quizId'
@@ -141,6 +151,7 @@ export interface FileRouteTypes {
     | '/questions'
     | '/register'
     | '/waiting-room'
+    | '/admin/analytics'
     | '/quiz/$code'
     | '/results/$quizId'
     | '/admin/quiz/$quizId'
@@ -154,6 +165,7 @@ export interface FileRouteTypes {
     | '/questions'
     | '/register'
     | '/waiting-room'
+    | '/admin/analytics'
     | '/quiz/$code'
     | '/results/$quizId'
     | '/admin/quiz/$quizId'
@@ -244,6 +256,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof QuizCodeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/analytics': {
+      id: '/admin/analytics'
+      path: '/analytics'
+      fullPath: '/admin/analytics'
+      preLoaderRoute: typeof AdminAnalyticsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/quiz/$quizId': {
       id: '/admin/quiz/$quizId'
       path: '/quiz/$quizId'
@@ -255,10 +274,12 @@ declare module '@tanstack/react-router' {
 }
 
 interface AdminRouteChildren {
+  AdminAnalyticsRoute: typeof AdminAnalyticsRoute
   AdminQuizQuizIdRoute: typeof AdminQuizQuizIdRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminAnalyticsRoute: AdminAnalyticsRoute,
   AdminQuizQuizIdRoute: AdminQuizQuizIdRoute,
 }
 
