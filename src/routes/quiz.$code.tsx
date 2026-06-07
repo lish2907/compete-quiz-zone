@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate, useParams } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Trophy, CheckCircle2, XCircle, Clock } from "lucide-react";
+import { Trophy, CircleCheck as CheckCircle2, Circle as XCircle, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { OPTIONS, type OptionKey, type QuizStatus } from "@/lib/quiz-utils";
 
