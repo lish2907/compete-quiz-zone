@@ -1,7 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Pencil, Trash2, Copy, Eye, Plus, Search } from "lucide-react";
+import { Pencil, Trash2, Copy, Eye, Plus, Search, Settings, BarChart3, BookOpen } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { Navbar } from "@/components/qv/Navbar";
 import { Footer } from "@/components/qv/Footer";
 import { Button } from "@/components/ui/button";
@@ -304,6 +305,24 @@ function AdminDashboard() {
           </Button>
         </div>
 
+        {/* Quick links */}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-2 gap-3 mb-8">
+          <Link to="/questions" className="glass rounded-2xl p-5 flex items-center gap-4 hover:border-primary/40 transition-colors border border-transparent">
+            <div className="size-12 rounded-xl bg-primary/15 border border-primary/30 flex items-center justify-center text-primary"><BookOpen /></div>
+            <div>
+              <p className="font-display text-lg">Question Bank</p>
+              <p className="text-xs text-foreground/60">Add, edit, and bulk-import questions.</p>
+            </div>
+          </Link>
+          <Link to="/admin/analytics" className="glass rounded-2xl p-5 flex items-center gap-4 hover:border-primary/40 transition-colors border border-transparent">
+            <div className="size-12 rounded-xl bg-accent/15 border border-accent/30 flex items-center justify-center text-accent"><BarChart3 /></div>
+            <div>
+              <p className="font-display text-lg">Analytics</p>
+              <p className="text-xs text-foreground/60">Participation, scores, and trends.</p>
+            </div>
+          </Link>
+        </div>
+
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
           <StatCard label="Total Quizzes" value={stats.total} tone="primary" />
@@ -399,6 +418,9 @@ function AdminDashboard() {
                       </TableCell>
                       <TableCell>
                         <div className="flex justify-end gap-1">
+                          <Button asChild size="icon" variant="ghost" title="Manage / Live control">
+                            <Link to="/admin/quiz/$quizId" params={{ quizId: q.id }}><Settings /></Link>
+                          </Button>
                           <Button size="icon" variant="ghost" onClick={() => setViewing(q)} title="View">
                             <Eye />
                           </Button>
