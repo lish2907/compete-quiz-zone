@@ -6,7 +6,7 @@ import { Navbar } from "@/components/qv/Navbar";
 import { Footer } from "@/components/qv/Footer";
 import { supabase } from "@/integrations/supabase/client";
 
-export const Route = createFileRoute("/admin/analytics")({
+export const Route = createFileRoute("/analytics")({
   head: () => ({ meta: [{ title: "Analytics — QuizVerse" }] }),
   component: AnalyticsPage,
 });
