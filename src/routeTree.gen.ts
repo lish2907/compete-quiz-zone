@@ -17,6 +17,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as JoinRouteImport } from './routes/join'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminQuizQuizIdRouteImport } from './routes/admin.quiz.$quizId'
 
 const WaitingRoomRoute = WaitingRoomRouteImport.update({
   id: '/waiting-room',
@@ -58,37 +59,45 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminQuizQuizIdRoute = AdminQuizQuizIdRouteImport.update({
+  id: '/quiz/$quizId',
+  path: '/quiz/$quizId',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/join': typeof JoinRoute
   '/login': typeof LoginRoute
   '/participant-register': typeof ParticipantRegisterRoute
   '/questions': typeof QuestionsRoute
   '/register': typeof RegisterRoute
   '/waiting-room': typeof WaitingRoomRoute
+  '/admin/quiz/$quizId': typeof AdminQuizQuizIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/join': typeof JoinRoute
   '/login': typeof LoginRoute
   '/participant-register': typeof ParticipantRegisterRoute
   '/questions': typeof QuestionsRoute
   '/register': typeof RegisterRoute
   '/waiting-room': typeof WaitingRoomRoute
+  '/admin/quiz/$quizId': typeof AdminQuizQuizIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/join': typeof JoinRoute
   '/login': typeof LoginRoute
   '/participant-register': typeof ParticipantRegisterRoute
   '/questions': typeof QuestionsRoute
   '/register': typeof RegisterRoute
   '/waiting-room': typeof WaitingRoomRoute
+  '/admin/quiz/$quizId': typeof AdminQuizQuizIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -101,6 +110,7 @@ export interface FileRouteTypes {
     | '/questions'
     | '/register'
     | '/waiting-room'
+    | '/admin/quiz/$quizId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -111,6 +121,7 @@ export interface FileRouteTypes {
     | '/questions'
     | '/register'
     | '/waiting-room'
+    | '/admin/quiz/$quizId'
   id:
     | '__root__'
     | '/'
@@ -121,11 +132,12 @@ export interface FileRouteTypes {
     | '/questions'
     | '/register'
     | '/waiting-room'
+    | '/admin/quiz/$quizId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AdminRoute: typeof AdminRoute
+  AdminRoute: typeof AdminRouteWithChildren
   JoinRoute: typeof JoinRoute
   LoginRoute: typeof LoginRoute
   ParticipantRegisterRoute: typeof ParticipantRegisterRoute
@@ -192,12 +204,29 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/quiz/$quizId': {
+      id: '/admin/quiz/$quizId'
+      path: '/quiz/$quizId'
+      fullPath: '/admin/quiz/$quizId'
+      preLoaderRoute: typeof AdminQuizQuizIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
 
+interface AdminRouteChildren {
+  AdminQuizQuizIdRoute: typeof AdminQuizQuizIdRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminQuizQuizIdRoute: AdminQuizQuizIdRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AdminRoute: AdminRoute,
+  AdminRoute: AdminRouteWithChildren,
   JoinRoute: JoinRoute,
   LoginRoute: LoginRoute,
   ParticipantRegisterRoute: ParticipantRegisterRoute,
@@ -208,3 +237,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
