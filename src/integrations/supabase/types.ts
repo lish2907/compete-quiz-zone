@@ -71,37 +71,219 @@ export type Database = {
         }
         Relationships: []
       }
+      questions: {
+        Row: {
+          category: string | null
+          correct_option: string
+          created_at: string | null
+          created_by: string | null
+          difficulty: string | null
+          id: string
+          option_a: string
+          option_b: string
+          option_c: string
+          option_d: string
+          question: string
+        }
+        Insert: {
+          category?: string | null
+          correct_option: string
+          created_at?: string | null
+          created_by?: string | null
+          difficulty?: string | null
+          id?: string
+          option_a: string
+          option_b: string
+          option_c: string
+          option_d: string
+          question: string
+        }
+        Update: {
+          category?: string | null
+          correct_option?: string
+          created_at?: string | null
+          created_by?: string | null
+          difficulty?: string | null
+          id?: string
+          option_a?: string
+          option_b?: string
+          option_c?: string
+          option_d?: string
+          question?: string
+        }
+        Relationships: []
+      }
+      quiz_answers: {
+        Row: {
+          answered_at: string
+          id: string
+          is_correct: boolean
+          points_awarded: number
+          question_id: string
+          quiz_id: string
+          selected_option: string
+          user_id: string
+        }
+        Insert: {
+          answered_at?: string
+          id?: string
+          is_correct?: boolean
+          points_awarded?: number
+          question_id: string
+          quiz_id: string
+          selected_option: string
+          user_id: string
+        }
+        Update: {
+          answered_at?: string
+          id?: string
+          is_correct?: boolean
+          points_awarded?: number
+          question_id?: string
+          quiz_id?: string
+          selected_option?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_answers_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quiz_answers_quiz_id_fkey"
+            columns: ["quiz_id"]
+            isOneToOne: false
+            referencedRelation: "quizzes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quiz_participants: {
+        Row: {
+          correct_count: number
+          display_name: string
+          finished_at: string | null
+          id: string
+          incorrect_count: number
+          joined_at: string
+          quiz_id: string
+          score: number
+          user_id: string
+        }
+        Insert: {
+          correct_count?: number
+          display_name: string
+          finished_at?: string | null
+          id?: string
+          incorrect_count?: number
+          joined_at?: string
+          quiz_id: string
+          score?: number
+          user_id: string
+        }
+        Update: {
+          correct_count?: number
+          display_name?: string
+          finished_at?: string | null
+          id?: string
+          incorrect_count?: number
+          joined_at?: string
+          quiz_id?: string
+          score?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_participants_quiz_id_fkey"
+            columns: ["quiz_id"]
+            isOneToOne: false
+            referencedRelation: "quizzes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quiz_questions: {
+        Row: {
+          created_at: string
+          id: string
+          order_index: number
+          points: number
+          question_id: string
+          quiz_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          order_index?: number
+          points?: number
+          question_id: string
+          quiz_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          order_index?: number
+          points?: number
+          question_id?: string
+          quiz_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_questions_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quiz_questions_quiz_id_fkey"
+            columns: ["quiz_id"]
+            isOneToOne: false
+            referencedRelation: "quizzes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       quizzes: {
         Row: {
           created_at: string
+          current_question_index: number
           description: string | null
           duration: number
           host_id: string
           id: string
           question_count: number
           quiz_code: string
+          started_at: string | null
           status: string
           title: string
         }
         Insert: {
           created_at?: string
+          current_question_index?: number
           description?: string | null
           duration?: number
           host_id: string
           id?: string
           question_count?: number
           quiz_code: string
+          started_at?: string | null
           status?: string
           title: string
         }
         Update: {
           created_at?: string
+          current_question_index?: number
           description?: string | null
           duration?: number
           host_id?: string
           id?: string
           question_count?: number
           quiz_code?: string
+          started_at?: string | null
           status?: string
           title?: string
         }
@@ -136,6 +318,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      submit_quiz_answer: {
+        Args: { _question_id: string; _quiz_id: string; _selected: string }
+        Returns: Json
       }
     }
     Enums: {
