@@ -34,27 +34,71 @@ function JoinPage() {
     e.preventDefault();
     const trimmed = code.trim().toUpperCase();
     if (!trimmed) return;
+
     setLoading(true);
-    const { data, error } = await supabase.from("quizzes")
-      .select("id, status, quiz_code").eq("quiz_code", trimmed).maybeSingle();
-    setLoading(false);
-    if (error) return toast.error(error.message);
-    if (!data) return toast.error("Quiz code not found");
-    if (data.status === "ended") return toast.error("This quiz has ended");
-    const { data: s } = await supabase.auth.getSession();
-    const uid = s.session?.user.id;
-    if (uid) {
-      const { data: p } = await supabase.from("participants").select("full_name").eq("user_id", uid).maybeSingle();
-      const name = p?.full_name || s.session?.user.email?.split("@")[0] || "Player";
-      await supabase.from("quiz_participants").upsert(
-        { quiz_id: data.id, user_id: uid, display_name: name },
-        { onConflict: "quiz_id,user_id", ignoreDuplicates: true }
+    try {
+      // 1. Look up the quiz
+      const { data: quiz, error: quizError } = await supabase
+        .from("quizzes")
+        .select("id, status, quiz_code")
+        .eq("quiz_code", trimmed)
+        .maybeSingle();
+
+      if (quizError) {
+        toast.error(quizError.message);
+        return;
+      }
+      if (!quiz) {
+        toast.error("Quiz code not found");
+        return;
+      }
+      if (quiz.status === "ended") {
+        toast.error("This quiz has already ended");
+        return;
+      }
+
+      // 2. Get current user session
+      const { data: sessionData } = await supabase.auth.getSession();
+      const uid = sessionData.session?.user.id;
+      if (!uid) {
+        navigate({ to: "/login" });
+        return;
+      }
+
+      // 3. Get display name from participants table
+      const { data: participant } = await supabase
+        .from("participants")
+        .select("full_name")
+        .eq("user_id", uid)
+        .maybeSingle();
+
+      const displayName =
+        participant?.full_name ||
+        sessionData.session?.user.email?.split("@")[0] ||
+        "Player";
+
+      // 4. Upsert into quiz_participants
+      const { error: upsertError } = await supabase.from("quiz_participants").upsert(
+        { quiz_id: quiz.id, user_id: uid, display_name: displayName },
+        { onConflict: "quiz_id,user_id", ignoreDuplicates: true },
       );
-    }
-    if (data.status === "live" || data.status === "paused") {
-      navigate({ to: "/quiz/$code", params: { code: trimmed } });
-    } else {
-      navigate({ to: "/waiting-room", search: { code: trimmed } as any });
+
+      if (upsertError) {
+        // Log but don't block navigation — participant row may already exist
+        console.warn("quiz_participants upsert:", upsertError.message);
+      }
+
+      // 5. Navigate based on quiz status
+      if (quiz.status === "live" || quiz.status === "paused") {
+        navigate({ to: "/quiz/$code", params: { code: trimmed } });
+      } else {
+        navigate({ to: "/waiting-room", search: { code: trimmed } });
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -84,7 +128,9 @@ function JoinPage() {
             className="w-full bg-foreground/5 border border-border rounded-xl px-4 py-4 font-mono text-2xl tracking-[0.3em] uppercase text-center text-foreground placeholder:text-foreground/20 focus:outline-none focus:border-primary/50 focus:bg-foreground/10 transition-colors"
           />
         </label>
-        <AuthButton type="submit">{loading ? "Checking…" : "Enter Lobby"}</AuthButton>
+        <AuthButton type="submit" disabled={loading}>
+          {loading ? "Checking…" : "Enter Lobby"}
+        </AuthButton>
       </form>
     </AuthShell>
   );

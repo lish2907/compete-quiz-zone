@@ -58,6 +58,7 @@ const emptyForm = (): QForm => ({
 function QuestionsPage() {
   const navigate = useNavigate();
   const [authChecked, setAuthChecked] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
   const [items, setItems] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -80,6 +81,7 @@ function QuestionsPage() {
       if (!(roles ?? []).some((r) => r.role === "admin")) {
         toast.error("Admin access required"); navigate({ to: "/" }); return;
       }
+      setUserId(uid);
       setAuthChecked(true);
     })();
   }, [navigate]);
@@ -130,6 +132,7 @@ function QuestionsPage() {
   const submit = async () => {
     const err = validate(form);
     if (err) return toast.error(err);
+    if (!userId) return;
     setSaving(true);
     const payload = {
       question: form.question.trim(),
@@ -141,7 +144,7 @@ function QuestionsPage() {
     };
     const res = editing
       ? await supabase.from("questions").update(payload).eq("id", editing.id)
-      : await supabase.from("questions").insert(payload);
+      : await supabase.from("questions").insert({ ...payload, host_id: userId });
     setSaving(false);
     if (res.error) return toast.error(res.error.message);
     toast.success(editing ? "Question updated" : "Question added");
@@ -156,6 +159,7 @@ function QuestionsPage() {
   };
 
   const onFile = async (file: File) => {
+    if (!userId) return;
     setImporting(true);
     try {
       const buf = await file.arrayBuffer();
@@ -176,6 +180,7 @@ function QuestionsPage() {
           correct_option: co,
           category: get("category") || "General",
           difficulty: (get("difficulty").toLowerCase() || "medium"),
+          host_id: userId,
         });
       });
       if (valid.length === 0) { toast.error(`No valid rows. ${errors[0] ?? ""}`); return; }

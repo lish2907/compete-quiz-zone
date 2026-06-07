@@ -75,9 +75,10 @@ export type Database = {
         Row: {
           category: string | null
           correct_option: string
-          created_at: string | null
-          created_by: string | null
+          created_at: string
           difficulty: string | null
+          explanation: string | null
+          host_id: string
           id: string
           option_a: string
           option_b: string
@@ -88,9 +89,10 @@ export type Database = {
         Insert: {
           category?: string | null
           correct_option: string
-          created_at?: string | null
-          created_by?: string | null
+          created_at?: string
           difficulty?: string | null
+          explanation?: string | null
+          host_id: string
           id?: string
           option_a: string
           option_b: string
@@ -101,9 +103,10 @@ export type Database = {
         Update: {
           category?: string | null
           correct_option?: string
-          created_at?: string | null
-          created_by?: string | null
+          created_at?: string
           difficulty?: string | null
+          explanation?: string | null
+          host_id?: string
           id?: string
           option_a?: string
           option_b?: string
@@ -111,37 +114,45 @@ export type Database = {
           option_d?: string
           question?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "questions_host_id_fkey"
+            columns: ["host_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       quiz_answers: {
         Row: {
           answered_at: string
           id: string
           is_correct: boolean
-          points_awarded: number
+          points: number
           question_id: string
           quiz_id: string
-          selected_option: string
+          selected: string
           user_id: string
         }
         Insert: {
           answered_at?: string
           id?: string
           is_correct?: boolean
-          points_awarded?: number
+          points?: number
           question_id: string
           quiz_id: string
-          selected_option: string
+          selected: string
           user_id: string
         }
         Update: {
           answered_at?: string
           id?: string
           is_correct?: boolean
-          points_awarded?: number
+          points?: number
           question_id?: string
           quiz_id?: string
-          selected_option?: string
+          selected?: string
           user_id?: string
         }
         Relationships: [
@@ -207,7 +218,6 @@ export type Database = {
       }
       quiz_questions: {
         Row: {
-          created_at: string
           id: string
           order_index: number
           points: number
@@ -215,7 +225,6 @@ export type Database = {
           quiz_id: string
         }
         Insert: {
-          created_at?: string
           id?: string
           order_index?: number
           points?: number
@@ -223,7 +232,6 @@ export type Database = {
           quiz_id: string
         }
         Update: {
-          created_at?: string
           id?: string
           order_index?: number
           points?: number
@@ -318,6 +326,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      next_quiz_question: {
+        Args: { _quiz_id: string }
+        Returns: undefined
       }
       submit_quiz_answer: {
         Args: { _question_id: string; _quiz_id: string; _selected: string }
