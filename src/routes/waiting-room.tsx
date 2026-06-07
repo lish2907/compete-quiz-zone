@@ -1,7 +1,12 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { ProgressSteps } from "@/components/qv/ProgressSteps";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/waiting-room")({
+  validateSearch: (s: Record<string, unknown>) => ({
+    code: typeof s.code === "string" ? s.code : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Waiting Room — QuizVerse" },
@@ -12,6 +17,37 @@ export const Route = createFileRoute("/waiting-room")({
 });
 
 function WaitingRoomPage() {
+  const navigate = useNavigate();
+  const { code } = Route.useSearch();
+  const [quizId, setQuizId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!code) return;
+    (async () => {
+      const { data } = await supabase.from("quizzes").select("id, status").eq("quiz_code", code).maybeSingle();
+      if (!data) return;
+      setQuizId(data.id);
+      if (data.status === "live" || data.status === "paused") {
+        navigate({ to: "/quiz/$code", params: { code } });
+      }
+    })();
+  }, [code, navigate]);
+
+  useEffect(() => {
+    if (!quizId || !code) return;
+    const ch = supabase.channel(`waiting-${quizId}`)
+      .on("postgres_changes",
+        { event: "UPDATE", schema: "public", table: "quizzes", filter: `id=eq.${quizId}` },
+        (payload) => {
+          const status = (payload.new as { status?: string }).status;
+          if (status === "live" || status === "paused") {
+            navigate({ to: "/quiz/$code", params: { code } });
+          }
+        })
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [quizId, code, navigate]);
+
   return (
     <div className="min-h-screen mesh-gradient flex items-center justify-center px-6 py-12 relative overflow-hidden">
       <div className="absolute -z-10 top-1/3 left-1/4 size-96 bg-primary/20 blur-[120px] rounded-full" />
@@ -30,11 +66,17 @@ function WaitingRoomPage() {
           </div>
           <h1 className="font-display text-4xl tracking-tight mb-2">You're in!</h1>
           <p className="text-foreground/60 text-sm mb-6">
-            Hang tight — the host will start the quiz soon. Keep this tab open.
+            {code ? <>Joined quiz <span className="font-mono text-primary">{code}</span>. </> : null}
+            Hang tight — the host will start the quiz soon.
           </p>
           <div className="text-xs font-mono uppercase tracking-widest text-foreground/40">
             Waiting for host…
           </div>
+          {!code && (
+            <div className="mt-6">
+              <Link to="/join" className="text-sm text-primary hover:underline">Enter a quiz code →</Link>
+            </div>
+          )}
         </div>
       </div>
     </div>
